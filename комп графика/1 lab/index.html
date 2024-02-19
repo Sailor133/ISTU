@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <canvas id="canvas" width="1000" height="1000"></canvas>
+    <canvas id="canvas" width="500" height="500"></canvas>
     <script>
         // устанавливаем размеры поля и блока
         const BLOCK_SIZE = 15;
@@ -40,6 +40,73 @@
 
         for (var i = 0; i < snake.length; i++) {
             drawBlock(snake[i].x, snake[i].y, "red")
+        }
+
+        document.addEventListener('keydown', checkKeydown); //функция реагирования на нажатую клавишу
+
+        var dir = 'right'; //переменная для запоминания направления движения
+
+        function checkKeydown(event) { // проверка нажатой клавиши и игнорирования движения в противоположную сторону
+            if ((event.code == 'ArrowUp' || event.code == 'KeyW') && dir != 'down') {
+                dir = 'up';
+            }
+            else if ((event.code == 'ArrowDown' || event.code == 'KeyS') && dir != 'up') {
+                dir = 'down'
+            }
+            else if ((event.code == 'ArrowLeft' || event.code == 'KeyA') && dir != 'right') {
+                dir = 'left';
+            }
+            else if ((event.code == 'ArrowRight' || event.code == 'KeyD') && dir != 'left') {
+                dir = 'right';
+            }
+            moveSnake(dir);
+        }
+
+        function moveSnake(dir) {
+            if (dir == 'up') {
+                if (checkPossibilityMoving(snake[0].x, snake[0].y - 1)) {
+                    snake.unshift({ x: snake[0].x, y: snake[0].y - 1 });
+                }
+                else return;
+            }
+            else if (dir == 'down') {
+                if (checkPossibilityMoving(snake[0].x, snake[0].y + 1)) {
+                    snake.unshift({ x: snake[0].x, y: snake[0].y + 1 });
+                }
+                else return;
+            }
+            else if (dir == 'left') {
+                if (checkPossibilityMoving(snake[0].x - 1, snake[0].y)) {
+                    snake.unshift({ x: snake[0].x - 1, y: snake[0].y });
+                }
+                else return;
+            }
+            else if (dir == 'right') {
+                if (checkPossibilityMoving(snake[0].x + 1, snake[0].y)) {
+                    snake.unshift({ x: snake[0].x + 1, y: snake[0].y });
+                }
+                else return;
+            }
+            drawBlock(snake[0].x, snake[0].y, "red");
+            clearBlock(snake[snake.length - 1].x, snake[snake.length - 1].y);
+            snake.pop();
+        }
+
+        function checkPossibilityMoving(x_pos, y_pos) {
+            if (x_pos >= 0 && y_pos >= 0 && x_pos <= FIELD_WIDTH - 1 && y_pos <= FIELD_HEIGHT - 1
+                && checkSnakeTail(x_pos, y_pos)) {
+                return true;
+            }
+            return false;
+        }
+
+        function checkSnakeTail(x_pos, y_pos) {
+            for (var i = 1; i < snake.length; i++) {
+                if (x_pos == snake[i].x && y_pos == snake[i].y) {
+                    return false;
+                }
+            }
+            return true;
         }
     </script>
 </body>
