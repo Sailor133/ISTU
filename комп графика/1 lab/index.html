@@ -16,9 +16,6 @@
         // создаем convas для отрисовки поля и змейки
         const canvas = document.getElementById("canvas");
         const context = canvas.getContext("2d");
-        context.globalAlpha = 0.2;
-        context.fillStyle = "gray";
-        context.fillRect(0, 0, FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE);
 
         function drawBlock(x_pos, y_pos, color) { //фунция для зарисовки одного блока
             context.globalAlpha = 1;
@@ -37,14 +34,23 @@
             { x: 2, y: 2 },
             { x: 1, y: 2 },
         ];
+        var apple = { x: 0, y: 0 };
+        var dir = 'right'; //переменная для запоминания направления движения
+        var snakeSpeed = 500;
+        var score = 0;
+        generateApple(); // появление пищи на поле        
 
-        for (var i = 0; i < snake.length; i++) {
-            drawBlock(snake[i].x, snake[i].y, "red")
+        function drawPole() {
+            context.globalAlpha = 0.2;
+            context.fillStyle = "black";
+            context.fillRect(0, 0, FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE);
+            for (var i = 0; i < snake.length; i++) {
+                drawBlock(snake[i].x, snake[i].y, 'red')
+            }
         }
 
+        drawPole();
         document.addEventListener('keydown', checkKeydown); //функция реагирования на нажатую клавишу
-
-        var dir = 'right'; //переменная для запоминания направления движения
 
         function checkKeydown(event) { // проверка нажатой клавиши и игнорирования движения в противоположную сторону
             if ((event.code == 'ArrowUp' || event.code == 'KeyW') && dir != 'down') {
@@ -59,10 +65,10 @@
             else if ((event.code == 'ArrowRight' || event.code == 'KeyD') && dir != 'left') {
                 dir = 'right';
             }
-            moveSnake(dir);
         }
 
-        function moveSnake(dir) {
+        function moveSnake() {  // Функция перемещения змейки
+
             if (dir == 'up') {
                 if (checkPossibilityMoving(snake[0].x, snake[0].y - 1)) {
                     snake.unshift({ x: snake[0].x, y: snake[0].y - 1 });
@@ -88,27 +94,78 @@
                 else return;
             }
             drawBlock(snake[0].x, snake[0].y, "red");
+
+            if (snake[0].x == apple.x && snake[0].y == apple.y) {
+                eatenApple();
+                return;
+            }
+
             clearBlock(snake[snake.length - 1].x, snake[snake.length - 1].y);
             snake.pop();
         }
 
+
         function checkPossibilityMoving(x_pos, y_pos) {
-            if (x_pos >= 0 && y_pos >= 0 && x_pos <= FIELD_WIDTH - 1 && y_pos <= FIELD_HEIGHT - 1
-                && checkSnakeTail(x_pos, y_pos)) {
+            if (checkWall(x_pos, y_pos) && checkSnakeTail(x_pos, y_pos)) {
                 return true;
             }
             return false;
         }
 
-        function checkSnakeTail(x_pos, y_pos) {
-            for (var i = 1; i < snake.length; i++) {
+        function checkWall(x_pos, y_pos) { // проверка на соприкосновения со стенами
+            if (x_pos < 0 || y_pos < 0 || x_pos > FIELD_WIDTH - 1 || y_pos > FIELD_HEIGHT - 1) {
+                endGame();
+                return false;
+            }
+            return true;
+        }
+
+        function checkSnakeTail(x_pos, y_pos) { // проверка на соприкосновение с телом змеи
+            for (var i = 0; i < snake.length; i++) {
                 if (x_pos == snake[i].x && y_pos == snake[i].y) {
+                    endGame();
                     return false;
                 }
             }
             return true;
         }
+
+        function endGame() {
+            alert("Игра окончена");
+            snake = [
+                { x: 4, y: 2 },
+                { x: 3, y: 2 },
+                { x: 2, y: 2 },
+                { x: 1, y: 2 },
+            ];
+            dir = "right";
+            generateApple();
+            score = 0;
+            drawPole();
+
+        }
+
+
+        function generateApple() {
+            apple.x = Math.floor(Math.random() * (FIELD_WIDTH - 1));
+            apple.y = Math.floor(Math.random() * (FIELD_HEIGHT - 1));
+            for (var i = 0; i < snake.length; i++) {
+                if (snake[i].x == apple.x && snake[i].j == apple.y) {
+                    generateApple();
+                }
+            }
+            drawBlock(apple.x, apple.y, 'green');
+        }
+
+        function eatenApple() {
+            generateApple();
+            snakeSpeed = snakeSpeed - 50;
+            score += 1;
+        }
+
+        var interval = setInterval(moveSnake, snakeSpeed);  
     </script>
+    <div id="score">Очки: 0</div>
 </body>
 
 </html>
