@@ -7,7 +7,7 @@
 </head>
 
 <body>
-    <canvas id="canvas" width="500" height="500"></canvas>
+    <canvas id="canvas" width="300" height="255"></canvas>
     <script>
         // устанавливаем размеры поля и блока
         const BLOCK_SIZE = 15;
@@ -15,6 +15,7 @@
         const FIELD_HEIGHT = 17;
         // создаем convas для отрисовки поля и змейки
         const canvas = document.getElementById("canvas");
+        
         const context = canvas.getContext("2d");
 
         function drawBlock(x_pos, y_pos, color) { //фунция для зарисовки одного блока
@@ -22,7 +23,7 @@
             context.fillStyle = color;
             context.fillRect(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE); // формула для понимания (x*BlOCK_SIZE, y*BLOCK,SIZE)
         }
-
+        canvas.style.border = "1px solid #000";
         function clearBlock(x_pos, y_pos) { // функия для очисктки одного блока
             context.globalAlpha = 1
             context.clearRect(x_pos * BLOCK_SIZE, y_pos * BLOCK_SIZE, BLOCK_SIZE, BLOCK_SIZE);// формула для понимания (x*BlOCK_SIZE, y*BLOCK,SIZE)
@@ -40,16 +41,10 @@
         var score = 0;
         generateApple(); // появление пищи на поле        
 
-        function drawPole() {
-            context.globalAlpha = 0.2;
-            context.fillStyle = "black";
-            context.fillRect(0, 0, FIELD_WIDTH * BLOCK_SIZE, FIELD_HEIGHT * BLOCK_SIZE);
-            for (var i = 0; i < snake.length; i++) {
-                drawBlock(snake[i].x, snake[i].y, 'red')
-            }
+        for (var i = 0; i < snake.length; i++) {
+            drawBlock(snake[i].x, snake[i].y, 'red')
         }
 
-        drawPole();
         document.addEventListener('keydown', checkKeydown); //функция реагирования на нажатую клавишу
 
         function checkKeydown(event) { // проверка нажатой клавиши и игнорирования движения в противоположную сторону
@@ -138,11 +133,7 @@
                 { x: 2, y: 2 },
                 { x: 1, y: 2 },
             ];
-            dir = "right";
-            generateApple();
-            score = 0;
-            drawPole();
-
+            location.reload();
         }
 
 
@@ -161,6 +152,12 @@
             generateApple();
             snakeSpeed = snakeSpeed - 50;
             score += 1;
+            updateScore();
+        }
+
+        function updateScore() {
+            var scoreElement = document.getElementById("score");
+            scoreElement.textContent = "Очки: " + score;
         }
 
         var interval = setInterval(moveSnake, snakeSpeed);  
